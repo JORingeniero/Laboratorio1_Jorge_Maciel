@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import platform
 
@@ -47,7 +48,16 @@ def agregar_producto(gestion, tipo_producto):
             añosGarantia = int(input('Ingrese años de garantia: '))
             producto = ProductoElectronico(codigo, tipo, nombre, precio, cantidad, añosGarantia)
         elif tipo_producto == '2':
-            fechaVencimiento = int(input('Ingrese Fecha de Vencimiento: '))
+            while True:
+                fechaVencimiento = input('Por favor ingrese Fecha de Vencimiento en el formato AAAA-MM-DD: ')
+                try:
+                    date = datetime.strptime(fechaVencimiento, '%Y-%m-%d')
+                    if date <= datetime.now():
+                        raise ValueError("La fecha de vencimiento debe ser mayor a la fecha actual")
+                except ValueError as e:
+                    print(f'Entrada no válida: {e}. Inténtalo de nuevo')
+                else:
+                    break
             producto = ProductoAlimenticio(codigo, tipo, nombre, precio, cantidad, fechaVencimiento)
         else:
             print('Opcion invalida')
@@ -60,11 +70,11 @@ def agregar_producto(gestion, tipo_producto):
     except ValueError as e:
         print(f'Error: {e}')
     except Exception as e:
-        print(f'Error inesperado; {e}')
+        print(f'Error inesperado: {e}')
 
 
 def buscar_producto_por_codigo(gestion):
-    codigo = input('Ingrese el codigo del producto')
+    codigo = input('Ingrese el codigo del producto: ')
     print()
     gestion.buscar_producto(codigo)
     input('Presione enter para continuar')
@@ -86,9 +96,11 @@ def eliminar_producto(gestion):
 def mostrar_todos_los_productos(gestion):
     for producto in gestion.leer_datos().values():
         if 'añosGarantia' in producto:
-            print(f"{producto['nombre']} añosGarantia {producto['añosGarantia']}")
+            print(f"Producto {producto['tipo']} {producto['nombre']} añosGarantia {producto['añosGarantia']}")
+            print()
         else:
-            print(f"{producto['nombre']} añosGarantia {producto['fechaVencimiento']}")
+            print(f"Producto {producto['tipo']} {producto['nombre']} fechaVencimiento {producto['fechaVencimiento']}")
+            print()
     input('Presione enter para continuar')
 
 if __name__ == "__main__":

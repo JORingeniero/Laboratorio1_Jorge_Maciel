@@ -27,7 +27,7 @@ class Producto:
         self.__precio = self.validar_precio(precio)
         self.__cantidad = self.validar_cantidad(cantidad)
     
-# Al estar nuestros atributos protegidos, debemos crear los métodos para que puedan ser accedidos desde otra clase
+        # Al estar nuestros atributos protegidos, debemos crear los métodos para que puedan ser accedidos desde otra clase
 
     @property #Con property convertimos el atributo en una propiedad
     def codigo(self):
@@ -49,11 +49,11 @@ class Producto:
     def cantidad(self):
         return self.__cantidad
 
-# Convertimos en propiedad todos nuestros atributos protejidos
-# El property es solamente para consultas. Es el getter
-# Para modificar los datos utilizamos el setter
-# Con el setter podemos realizar una modificación de los valores recibidos para guardarlo en el Json
-# Vamos a validar primero el precio. El precio del producto no puede ser negativo.
+    # Convertimos en propiedad todos nuestros atributos protejidos
+    # El property es solamente para consultas. Es el getter
+    # Para modificar los datos utilizamos el setter
+    # Con el setter podemos realizar una modificación de los valores recibidos para guardarlo en el Json
+    # Vamos a validar primero el precio. El precio del producto no puede ser negativo.
 
     @precio.setter #Convierte a la función en un setter propiamente dicho
     def precio (self, nuevo_precio):
@@ -83,11 +83,12 @@ class Producto:
             codigo_num = int(codigo)
             if len(str(codigo)) != 8:
                 raise ValueError("El código debe ser de 8 dígitos")
+            return codigo_num
             
         except ValueError:
             raise ValueError("El código debe ser numérico y estar compuesto por 8 dígitos")
 
-# Creo un método para guardar estos atributos en un diccionario (archivo Json)
+    # Creo un método para guardar estos atributos en un diccionario (archivo Json)
     
     def to_dict(self):
         return {
@@ -131,21 +132,13 @@ class ProductoElectronico(Producto):
 class ProductoAlimenticio(Producto):
     def __init__(self, codigo, tipo, nombre, precio, cantidad, fechaVencimiento):
         super().__init__(codigo, tipo, nombre, precio, cantidad)
-        self.__fechaVencimiento = self.validar_fechaVencimiento(fechaVencimiento)
+        self.__fechaVencimiento = fechaVencimiento
     
     @property
     def fechaVencimiento (self):
         return self.__fechaVencimiento
     
-    def validar_fechaVencimiento(self, fechaVencimiento):
-        try:
-            añosGarantia_num = int(fechaVencimiento)
-            if añosGarantia_num < 1:
-                raise ValueError ('Ingresar fecha de vencimiento en formato DD/MM/AAAA')
-            return añosGarantia_num
-        except ValueError:
-            raise ValueError ('Años de Garantía debe ser una fecha válida')
-
+    
     def to_dict(self):
         data = super().to_dict()
         data['fechaVencimiento'] = self.fechaVencimiento
@@ -158,8 +151,8 @@ class GestionProducto():
     def __init__(self, archivo):
         self.archivo = archivo
 
-# Este método lo único que hace es leer los datos del archivo
-# Con open(self.archivo) accedemos al archivo en modo lectura ('r')
+    # Este método lo único que hace es leer los datos del archivo
+    # Con open(self.archivo) accedemos al archivo en modo lectura ('r')
 
     def leer_datos(self):
         try:
@@ -173,12 +166,12 @@ class GestionProducto():
         else:
             return datos
         
-# Con este método guardamos los datos
+        # Con este método guardamos los datos
 
     def guardar_datos(self, datos):
         try:
             with open(self.archivo, 'w') as file:
-                json.dump(datos, file, ident=4) #ident=4 son los espacios que se dejan desde el margen izquierdo
+                json.dump(datos, file, indent=4) #ident=4 son los espacios que se dejan desde el margen izquierdo
                                                 #facilita la lectura. 4 es un valor estandard
         except IOError as error:
             print(f'Error al intentar guardar los datos en {self.archivo}: (error)')
@@ -192,7 +185,7 @@ class GestionProducto():
             datos = self.leer_datos()
             codigo = producto.codigo
             if not (codigo) in datos.keys():
-                datos[codigo] = producto.to_dic()
+                datos[codigo] = producto.to_dict()
                 self.guardar_datos(datos)
                 print(f'El producto: {producto} fue guardado exitosamente')
                 print()
@@ -213,6 +206,7 @@ class GestionProducto():
                     producto = ProductoElectronico(**producto_data)
                 else:
                     producto = ProductoAlimenticio(**producto_data)
+                print()
                 print(f'Producto encontrado con codigo: {codigo}')
                 print()
             else:
@@ -225,7 +219,7 @@ class GestionProducto():
     def actualizar_precio(self, codigo, nuevo_precio):
         try:
             datos = self.leer_datos()
-            if int(codigo) in datos.keys():
+            if str(codigo) in datos.keys():
                 datos[codigo]['precio'] = nuevo_precio
                 self.guardar_datos(datos)
                 print(f'precio del producto: {codigo} actualizado correctamente')
@@ -240,7 +234,7 @@ class GestionProducto():
     def eliminar_producto(self, codigo):
         try:
             datos = self.leer_datos()
-            if int(codigo) in datos.keys():
+            if str(codigo) in datos.keys():
                 del datos[codigo]
                 self.guardar_datos(datos)
                 print(f'Producto con codigo: {codigo} eliminado correctamente')

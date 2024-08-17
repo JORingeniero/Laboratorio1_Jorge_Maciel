@@ -1,0 +1,66 @@
+{
+    "66778899": {
+        "codigo": 66778899,
+        "tipo": "electronico",
+        "nombre": "Plaqsma",
+        "precio": 78.0,
+        "cantidad": 5,
+        "a\u00f1osGarantia": 2
+    },
+    "66776655": {
+        "codigo": 66776655,
+        "tipo": "electronico",
+        "nombre": "Router",
+        "precio": 123000.0,
+        "cantidad": 5,
+        "a\u00f1osGarantia": 2
+    },
+    "44334432": {
+        "codigo": 44334432,
+        "tipo": "alimenticio",
+        "nombre": "Manteca100gr",
+        "precio": 1900.0,
+        "cantidad": 7,
+        "fechaVencimiento": "2024-12-14"
+    },
+    "11221122": {
+        "codigo": 11221122,
+        "tipo": "electronico",
+        "nombre": "Auricular",
+        "precio": 30000.0,
+        "cantidad": 9,
+        "a\u00f1osGarantia": 1
+    },
+    "22223333": {
+        "codigo": 22223333,
+        "tipo": "electronico",
+        "nombre": "Celular_samsung-a02s",
+        "precio": 120000.0,
+        "cantidad": 12,
+        "a\u00f1osGarantia": 3
+    },
+    "33334411": {
+        "codigo": 33334411,
+        "tipo": "alimenticio",
+        "nombre": "Crema_leche_250gr",
+        "precio": 2300.0,
+        "cantidad": 7,
+        "fechaVencimiento": "2024-11-12"
+    },
+    "33334412": {
+        "codigo": 33334412,
+        "tipo": "alimenticio",
+        "nombre": "Crema_leche_500gr",
+        "precio": 3100.0,
+        "cantidad": 9,
+        "fechaVencimiento": "2024-11-22"
+    },
+    "44334433": {
+        "codigo": 44334433,
+        "tipo": "alimenticio",
+        "nombre": "Manteca200gr",
+        "precio": 2800.0,
+        "cantidad": 9,
+        "fechaVencimiento": "2024-12-21"
+    }
+}
