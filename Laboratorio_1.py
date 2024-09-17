@@ -16,6 +16,10 @@
 # d- precio: precio del producto en pesos
 # e- cantidad: disponibilidad en stock
 
+import mysql.connector
+from mysql.connector import Error
+from decouple import config
+
 import json
 
 class Producto:
@@ -148,8 +152,32 @@ class ProductoAlimenticio(Producto):
         return f'{super().__str__()} - fechaVencimiento: {self.fechaVencimiento}'
 
 class GestionProducto():
-    def __init__(self, archivo):
-        self.archivo = archivo
+    def __init__(self):
+        self.host = config ('Db_Host')
+        self.database = config ('Db_Name')
+        self.user = config ('Db_User')
+        self.password = config ('Db_Passworg') 
+        self.port = config ('Db_port')
+    
+    def connect(self):
+        '''Establecer una conexión con la base de datos'''
+        try:
+            connection = mysql.connector.connect(
+                host= self.host,
+                database= self.database,
+                user= self.user,
+                password= self.password,
+                port= self.port
+            )
+
+            if connection.is_connected():
+                return connection
+
+        except Error as e:
+            print(f'Error al conectar a la base de datos: {e}')
+            return None
+            
+
 
     # Este método lo único que hace es leer los datos del archivo
     # Con open(self.archivo) accedemos al archivo en modo lectura ('r')
@@ -182,17 +210,47 @@ class GestionProducto():
 
     def crear_producto(self,producto):
         try:
-            datos = self.leer_datos()
-            codigo = producto.codigo
-            if not (codigo) in datos.keys():
-                datos[codigo] = producto.to_dict()
-                self.guardar_datos(datos)
-                print(f'El producto: {producto} fue guardado exitosamente')
-                print()
-            else:
-                print(f'El producto: {producto} ya existe en archivo')
-                print()
+            connection = self.connect()
+            if connection:
+                with connection.cursor() as cursor:
+                    # Se verifica si el producto ya existe a través de su código
+                    cursor. execute('select codigo from producto where codigo = %s', (producto.codigo,))
+                    if cursor.fetchone():
+                        print(f'Error: ya existe un producto con codigo {producto.codigo}')
+                        return
+                    # Crear producto según su tipo (Alimenticio/Electrónico)
+                    if isinstance(producto, ProductoElectronico):
+                        query = '''
+                        INSERT INTO producto (codigo, tipo, nombre, precio, cantidad)
+                        VALUES (%s, %s, %s, %s, %s)
+                        '''
+                        cursor.execute(query, (producto.codigo, producto.tipo, producto.nombre, producto.precio, producto.cantidad))
+                        
+                        query = '''
+                        INSERT INTO productoelectronico (codigo, añosGarantia)
+                        VALUES (%s, %s)
+                        '''
+                        cursor.execute(query, (producto.codigo, producto.añosGarantia))
+                    
+                    elif isinstance(producto, ProductoAlimenticio):
 
+                        query = '''
+                        INSERT INTO producto (codigo, tipo, nombre, precio, cantidad)
+                        VALUES (%s, %s, %s, %s, %s)
+                        '''
+                        cursor.execute(query, (producto.codigo, producto.tipo, producto.nombre, producto.precio, producto.cantidad))
+
+                        query = '''
+                        INSERT INTO productoalimenticio (codigo, fechaVencimiento)
+                        VALUES (%s, %s)
+                        '''
+                        cursor.execute(query, (producto.codigo, producto.fechaVencimiento))
+                    
+                    connection.commit()
+                    print()
+                    print(f'Producto tipo {producto.tipo} : -> {producto.nombre} creado exitosamente')
+
+            
         except Exception as error:
             print (f'Error inesperado al crear producto: {error}')
             print()
@@ -207,7 +265,7 @@ class GestionProducto():
                 else:
                     producto = ProductoAlimenticio(**producto_data)
                 print()
-                print(f'Producto encontrado con codigo: {codigo}')
+                print(f'Producto encontrado con codigo: {codigo} ')
                 print()
             else:
                 print(f'Producto no encontrado con codigo: {codigo}')

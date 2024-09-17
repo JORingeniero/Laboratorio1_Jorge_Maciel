@@ -105,8 +105,8 @@ def mostrar_todos_los_productos(gestion):
 
 if __name__ == "__main__":
 
-    archivo_productos = 'productos_store.json'
-    gestion_productos = GestionProducto(archivo_productos)
+    
+    gestion_productos = GestionProducto()
 
     while True:     # Esta parte del código va a mostrar el menú y va a capturar
                     # la opción que elija el usuario
