@@ -1,0 +1,5 @@
+Db_Host = host
+Db_Name = database_name
+Db_User = user
+Db_Password = pass
+Db_port = 3333

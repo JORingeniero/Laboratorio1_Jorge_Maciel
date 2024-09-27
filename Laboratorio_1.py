@@ -156,7 +156,7 @@ class GestionProducto():
         self.host = config ('Db_Host')
         self.database = config ('Db_Name')
         self.user = config ('Db_User')
-        self.password = config ('Db_Passworg') 
+        self.password = config ('Db_Password') 
         self.port = config ('Db_port')
     
     def connect(self):
@@ -257,49 +257,142 @@ class GestionProducto():
 
     def buscar_producto(self, codigo):
         try:
-            datos = self.leer_datos()
-            if codigo in datos:
-                producto_data = datos[codigo]
-                if 'añosGarantia' in producto_data:
-                    producto = ProductoElectronico(**producto_data)
-                else:
-                    producto = ProductoAlimenticio(**producto_data)
-                print()
-                print(f'Producto encontrado con codigo: {codigo} ')
-                print()
-            else:
-                print(f'Producto no encontrado con codigo: {codigo}')
-                print()
+            connection = self.connect()
+            if connection:
+                with connection.cursor(dictionary=True) as cursor:
+                    cursor.execute('SELECT * FROM producto WHERE codigo = %s', (codigo,))
+                    producto_data = cursor.fetchone()
+                    
+                    if producto_data:
+                        cursor.execute('SELECT añosGarantia FROM productoelectronico WHERE codigo = %s', (codigo,))
+                        añosGarantia = cursor.fetchone()
+
+                        if añosGarantia:
+                            producto_data['añosGarantia'] = añosGarantia['añosGarantia']
+                            producto = ProductoElectronico(**producto_data)
+                        
+                        else:
+                            cursor.execute('SELECT fechaVencimiento FROM productoalimenticio WHERE codigo = %s', (codigo,))
+                            fechaVencimiento = cursor.fetchone()
+
+                            if fechaVencimiento:
+                                producto_data['fechaVencimiento'] = fechaVencimiento['fechaVencimiento']
+                                producto = ProductoAlimenticio(**producto_data)
+                            
+                            else:
+                                producto = Producto(**producto_data)
+                        
+                        print()
+                        print(f'Producto encontrado: -> {producto} Código: -> {codigo}')
+                    
+                    else:
+                        print()
+                        print(f'No se encontró Producto con Código: -> {codigo}')
+            
         
-        except Exception as e:
+        except Error as e:
             print('Error al buscar producto: {e}')
+        finally:
+            if connection.is_connected():
+                connection.close()
 
     def actualizar_precio(self, codigo, nuevo_precio):
+        '''Actualizar el precio de un producto en la base de datos'''
         try:
-            datos = self.leer_datos()
-            if str(codigo) in datos.keys():
-                datos[codigo]['precio'] = nuevo_precio
-                self.guardar_datos(datos)
-                print(f'precio del producto: {codigo} actualizado correctamente')
-                print()
-            else:
-                print(f'No se encontro producto con el codigo: {codigo}')
-                print()
-            
+            connection = self.connect()
+            if connection:
+                with connection.cursor() as cursor:
+                    # Verificar si el código del producto existe
+                    cursor.execute('SELECT * FROM producto WHERE codigo = %s', (codigo,))
+                    if not cursor.fetchone():
+                        print()
+                        print(f'No se encuentra producto con código -> {codigo}')
+                        return
+                    
+                    # Si el código del producto existe en la base de datos, procedemos a actualizar su precio
+                    cursor.execute('UPDATE producto SET precio = %s WHERE codigo = %s', (nuevo_precio, codigo))
+
+                    if cursor.rowcount > 0:
+                        connection.commit()
+                        print()
+                        print(f'El precio fue actualizado correctamente al valor -> $ {nuevo_precio}')
+                    else:
+                        print()
+                        print(f'No se encontró producto con código -> {codigo}')
+                    
         except Exception as e:
             print(f'Error al actualizar precio: {e}')
-
+        finally:
+            if connection.is_connected():
+                connection.close()
+                
     def eliminar_producto(self, codigo):
         try:
-            datos = self.leer_datos()
-            if str(codigo) in datos.keys():
-                del datos[codigo]
-                self.guardar_datos(datos)
-                print(f'Producto con codigo: {codigo} eliminado correctamente')
-                print()
-            else:
-                print(f'No se encontro producto con el codigo: {codigo}')
-                print()
-            
+            connection = self.connect()
+            if connection:
+                with connection.cursor() as cursor:
+                    # Verificar si el código del producto existe
+                    cursor.execute('SELECT * FROM producto WHERE codigo = %s', (codigo,))
+                    if not cursor.fetchone():
+                        print()
+                        print(f'No se encuentra producto con código -> {codigo}')
+                        return
+                    
+                    # Si el producto existe, eliminamos dicho producto
+                    cursor.execute('DELETE FROM productoelectronico WHERE codigo = %s', (codigo,))
+                    cursor.execute('DELETE FROM productoalimenticio WHERE codigo = %s', (codigo,))
+                    cursor.execute('DELETE FROM producto WHERE codigo = %s', (codigo,))
+                    if cursor.rowcount > 0:
+                        connection.commit()
+                        print()
+                        print(f'El producto con código -> {codigo} fue eliminado de la base de datos')
+                    else:
+                        print()
+                        print(f'No se encontró producto con código -> {codigo}')
+                        
         except Exception as e:
             print(f'Error al eliminar producto: {e}')
+        
+        finally:
+            if connection.is_connected():
+                connection.close()
+
+    def leer_todos_los_productos(self):
+        try:
+            connection = self.connect()
+            if connection:
+                with connection.cursor(dictionary = True) as cursor:
+                    cursor.execute('SELECT * FROM producto')
+                    productos_data = cursor.fetchall()
+
+                    productos = []
+                    for producto_data in productos_data:
+                        codigo = producto_data['codigo']
+
+                        cursor.execute('SELECT añosGarantia FROM productoelectronico WHERE codigo = %s', (codigo,))
+                        añosgarantia = cursor.fetchone()
+
+                        if añosgarantia:
+                            producto_data['añosGarantia'] = añosgarantia['añosGarantia']
+                            producto = ProductoElectronico(**producto_data)
+                        
+                        else:
+                            cursor.execute('SELECT fechaVencimiento FROM productoalimenticio WHERE codigo = %s', (codigo,))
+                            fechavencimiento = cursor.fetchone()
+                            producto_data['fechaVencimiento'] = fechavencimiento['fechaVencimiento']
+                            producto = ProductoAlimenticio(**producto_data)
+
+                        productos.append(producto)
+                        
+        except Exception as e:
+            print(f'Error al mostrar todos los productos: {e}')
+        
+        else:
+            return productos
+        
+        finally:
+            if connection.is_connected():
+                connection.close()
+        
+
+

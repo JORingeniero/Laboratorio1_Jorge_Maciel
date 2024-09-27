@@ -94,13 +94,26 @@ def eliminar_producto(gestion):
     input('Presione enter para continuar')
 
 def mostrar_todos_los_productos(gestion):
-    for producto in gestion.leer_datos().values():
-        if 'añosGarantia' in producto:
-            print(f"Producto {producto['tipo']} {producto['nombre']} añosGarantia {producto['añosGarantia']}")
-            print()
-        else:
-            print(f"Producto {producto['tipo']} {producto['nombre']} fechaVencimiento {producto['fechaVencimiento']}")
-            print()
+    print()
+    print('**************** Listado De Productos *****************')
+    print()
+    try:
+        productos = gestion.leer_todos_los_productos()
+        for producto in productos:
+            if isinstance(producto, ProductoAlimenticio):
+                print()
+                print(f'Producto Tipo -> {producto.tipo} Código -> {producto.codigo} Nombre -> {producto.nombre}')
+            elif isinstance(producto, ProductoElectronico):
+                print()
+                print(f'Producto Tipo -> {producto.tipo} Código -> {producto.codigo} Nombre -> {producto.nombre}') 
+                
+    except Exception as e:
+        print()
+        print(f'Error al mostrar los productos {e}')
+        print()
+        print('***************************************************')
+        print()
+
     input('Presione enter para continuar')
 
 if __name__ == "__main__":
