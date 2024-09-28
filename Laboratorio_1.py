@@ -19,6 +19,8 @@
 import mysql.connector
 from mysql.connector import Error
 from decouple import config
+from datetime import datetime
+
 
 import json
 
@@ -59,15 +61,23 @@ class Producto:
     # Con el setter podemos realizar una modificación de los valores recibidos para guardarlo en el Json
     # Vamos a validar primero el precio. El precio del producto no puede ser negativo.
 
+    # Setters (corrección del profe)
+    
     @precio.setter #Convierte a la función en un setter propiamente dicho
     def precio (self, nuevo_precio):
         self.__precio = self.validar_precio(nuevo_precio)
+
+    @cantidad.setter
+    def cantidad (self, nueva_cantidad):
+        self.__cantidad = self.validar_cantidad(nueva_cantidad)
+    
+    # Métodos de validación
 
     def validar_precio(self, precio):
         try:
             precio_num = float(precio)
             if precio_num < 0:
-                raise ValueError ('El precio debe ser un número positivo')
+                raise ValueError ('El precio debe ser un numero positivo')
             return precio_num
         except ValueError:
             raise ValueError ('El precio debe ser una cifra válida')
@@ -86,13 +96,13 @@ class Producto:
         try:
             codigo_num = int(codigo)
             if len(str(codigo)) != 8:
-                raise ValueError("El código debe ser de 8 dígitos")
+                raise ValueError("El codigo debe ser de 8 dígitos")
             return codigo_num
             
         except ValueError:
-            raise ValueError("El código debe ser numérico y estar compuesto por 8 dígitos")
+            raise ValueError("El codigo debe ser numérico y estar compuesto por 8 dígitos")
 
-    # Creo un método para guardar estos atributos en un diccionario (archivo Json)
+    # Creo un método para guardar estos atributos en un diccionario 
     
     def to_dict(self):
         return {
@@ -138,16 +148,17 @@ class ProductoAlimenticio(Producto):
         super().__init__(codigo, tipo, nombre, precio, cantidad)
         self.__fechaVencimiento = fechaVencimiento
     
+    
+    
     @property
     def fechaVencimiento (self):
         return self.__fechaVencimiento
-    
     
     def to_dict(self):
         data = super().to_dict()
         data['fechaVencimiento'] = self.fechaVencimiento
         return data
-    
+        
     def __str__(self):
         return f'{super().__str__()} - fechaVencimiento: {self.fechaVencimiento}'
 
@@ -335,7 +346,7 @@ class GestionProducto():
                     cursor.execute('SELECT * FROM producto WHERE codigo = %s', (codigo,))
                     if not cursor.fetchone():
                         print()
-                        print(f'No se encuentra producto con código -> {codigo}')
+                        print(f'No se encuentra producto con codigo -> {codigo}')
                         return
                     
                     # Si el producto existe, eliminamos dicho producto

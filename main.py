@@ -22,13 +22,14 @@ def mostrar_menu():
     print("==============================================")
     print("************ GESTION DE PRODUCTOS ************")
     print("==============================================")
-    print('1. Agregar Producto Electrónico\n')
+    print('1. Agregar Producto Electronico\n')
     print('2. Agregar Producto Alimenticio\n')
     print('3. Buscar Producto por codigo\n')
     print('4. Actualizar Producto\n')
     print('5. Eliminar Producto por codigo\n')
     print('6. Mostrar todos los productos\n')
     print('7. Salir\n')
+    print('==============================================')
 
 
 def agregar_producto(gestion, tipo_producto):
@@ -39,7 +40,7 @@ def agregar_producto(gestion, tipo_producto):
         print()
         nombre = input('Ingrese nombre del producto: ')
         print()
-        precio = float(input('Ingrese precio del producto: '))
+        precio = float(input('Ingrese precio del producto: $ '))
         print()
         cantidad = int(input('Ingrese cantidad del producto: '))
         print()
@@ -65,6 +66,7 @@ def agregar_producto(gestion, tipo_producto):
         
         gestion.crear_producto(producto)
 
+        print()
         input('Presione enter para continuar')
     
     except ValueError as e:
@@ -77,43 +79,46 @@ def buscar_producto_por_codigo(gestion):
     codigo = input('Ingrese el codigo del producto: ')
     print()
     gestion.buscar_producto(codigo)
+    print()
     input('Presione enter para continuar')
 
 def actualizar_precio_producto(gestion):
     codigo = input('Ingrese codigo de producto para actualizar precio: ')
     print()
-    precio = float(input('Ingrese el precio del producto: '))
+    precio = float(input('Ingrese el precio del producto: $ '))
     print()
     gestion.actualizar_precio(codigo, precio)
+    print()
     input('Presione enter para continuar')
 
 def eliminar_producto(gestion):
     codigo = input('Ingrese codigo de producto para eliminar: ')
     print()
     gestion.eliminar_producto(codigo)
+    print()
     input('Presione enter para continuar')
 
 def mostrar_todos_los_productos(gestion):
     print()
-    print('**************** Listado De Productos *****************')
+    print('**************************** Listado De Productos *****************************')
     print()
     try:
         productos = gestion.leer_todos_los_productos()
         for producto in productos:
             if isinstance(producto, ProductoAlimenticio):
                 print()
-                print(f'Producto Tipo -> {producto.tipo} Código -> {producto.codigo} Nombre -> {producto.nombre}')
+                print(f'Producto Tipo -> {producto.tipo}  Codigo -> {producto.codigo}  Nombre -> {producto.nombre}')
             elif isinstance(producto, ProductoElectronico):
                 print()
-                print(f'Producto Tipo -> {producto.tipo} Código -> {producto.codigo} Nombre -> {producto.nombre}') 
-                
+                print(f'Producto Tipo -> {producto.tipo}  Codigo -> {producto.codigo}  Nombre -> {producto.nombre}') 
+        print()
+        print('******************************************************************************')
+        print()      
     except Exception as e:
         print()
         print(f'Error al mostrar los productos {e}')
-        print()
-        print('***************************************************')
-        print()
-
+        
+    print()
     input('Presione enter para continuar')
 
 if __name__ == "__main__":
@@ -125,7 +130,8 @@ if __name__ == "__main__":
                     # la opción que elija el usuario
         limpiar_pantalla()
         mostrar_menu()
-        opcion = input('Ingrese una opción: ')
+        print()
+        opcion = input('Ingrese una opcion: ')
         print()
 
         if opcion == '1' or opcion == '2':
