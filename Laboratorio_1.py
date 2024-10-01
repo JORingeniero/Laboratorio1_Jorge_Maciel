@@ -146,14 +146,14 @@ class ProductoElectronico(Producto):
 class ProductoAlimenticio(Producto):
     def __init__(self, codigo, tipo, nombre, precio, cantidad, fechaVencimiento):
         super().__init__(codigo, tipo, nombre, precio, cantidad)
-        self.__fechaVencimiento = fechaVencimiento
-    
+        self.__fechaVencimiento = self.validar_fecha_vencimiento(fechaVencimiento)
     
     
     @property
     def fechaVencimiento (self):
         return self.__fechaVencimiento
     
+        
     def to_dict(self):
         data = super().to_dict()
         data['fechaVencimiento'] = self.fechaVencimiento
